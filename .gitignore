@@ -1,0 +1,7 @@
+*.pdf
+*.png
+*.svg
+*.dat
+*.d
+*.so
+CepGenEnvironment.h
