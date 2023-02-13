@@ -10,7 +10,7 @@
 #include <string>
 
 // clang-format off
-#include "commons.h"
+#include "CepGenEnvironment.h"
 // clang-format on
 #include "CepGen/Physics/Utils.h"
 
