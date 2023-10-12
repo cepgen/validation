@@ -6,6 +6,7 @@
 #include <TMultiGraph.h>
 #include <TSystem.h>
 
+#include "CepGen/Generator.h"
 #include "CepGen/Modules/StructureFunctionsFactory.h"
 #include "CepGen/Physics/MCDFileParser.h"
 #include "CepGen/StructureFunctions/Parameterisation.h"
@@ -19,7 +20,9 @@ void compare_sf(double q2 = 1.225,
                 bool logy = false,
                 bool right = false,
                 bool show_legend = true,
-                bool plot_fl = false) {
+                bool plot_fl = false,
+                const string& output_file = "sf_comparison",
+                const vector<string>& formats = {"pdf"}) {
   //const cepgen::Limits xbj_lims(2.5e-6, 0.99);
   const cepgen::Limits xbj_lims(1.1e-5, 0.99);
   //const cepgen::Limits xbj_lims(1.e-3, 0.99);
@@ -28,10 +31,11 @@ void compare_sf(double q2 = 1.225,
   const double x_pos_leg_data = (right) ? 0.56 : 0.16;
   //const double x_pos_leg_data = (right) ? 0.5 : 0.16;
   const double y_pos_leg_data = 0.35;
+  const double x_leg_size = 0.15, y_leg_size = 0.15;
   //const double y_pos_leg_data = 0.7;
   const string mstw_grid_path = cepgen::utils::env::get("HOME") + "/work/dev/cepgen/External/mstw_sf_scan_nnlo.dat";
 
-  //cepgen::initialise();
+  cepgen::initialise();
   pdg::MCDFileParser::parse(cepgen::utils::env::get("HOME") + "/work/dev/cepgen/External/mass_width_2021.mcd");
 
   vector<StrFunParams> sfs;
@@ -49,6 +53,7 @@ void compare_sf(double q2 = 1.225,
   sfs.emplace_back(202);
   sfs.emplace_back(203);
   sfs.emplace_back(204);
+  //sfs.emplace_back(402);
   //sfs.emplace_back(205);
   //sfs.emplace_back(206);
   //sfs.emplace_back(401, cepgen::ParametersList().set<string>("pdfSet", "cteq6l1"), "CTEQ6l1", kGray + 1);
@@ -78,7 +83,7 @@ void compare_sf(double q2 = 1.225,
         sf.graph().AddPoint(xbj, sf.sf()->F2(xbj, q2));
     }
 
-  cepgen::ROOTCanvas c("sf_comparison");
+  cepgen::ROOTCanvas c(output_file);
   c.SetTopLabel(Form("Q^{2} ~ %g GeV^{2}", q2));
   c.SetLegendX1(0.4);
   c.SetLegendY1(0.77);
@@ -100,26 +105,11 @@ void compare_sf(double q2 = 1.225,
       c.AddLegendEntry(&sf.graph(), cepgen::utils::split(sf.name(), ' ')[0].data(), "l");
   }
 
-  if (auto* leg = c.GetLegend()) {
-    if (sfs.size() > 6) {
-      leg->SetNColumns(2);
-      leg->SetX1(0.18);
-      leg->SetX2(0.88);
-      leg->SetY1(0.62);
-      leg->SetY2(0.9);
-    } else if (sfs.size() > 9) {
-      leg->SetNColumns(3);
-      leg->SetX1(0.18);
-      leg->SetX2(0.88);
-      leg->SetY1(0.77);
-      leg->SetY2(0.92);
-    }
-  }
-
   //--- data points
 
   //auto leg_data = new TLegend( x_pos_leg_data, 0.3, x_pos_leg_data+0.15, 0.55, "" );
-  auto leg_data = new TLegend(x_pos_leg_data, y_pos_leg_data, x_pos_leg_data + 0.15, y_pos_leg_data + 0.15, "");
+  auto leg_data =
+      new TLegend(x_pos_leg_data, y_pos_leg_data, x_pos_leg_data + x_leg_size, y_pos_leg_data + y_leg_size, "");
 
   struct DataSample {
     explicit DataSample(const SampleHandler& hnd, const std::string& aname, int astyle)
@@ -158,7 +148,7 @@ void compare_sf(double q2 = 1.225,
     for (const auto& sample : samples) {
       auto* proj = new TGraphErrors(sample.handler.xBjGraph(q2));
       proj->SetMarkerStyle(sample.style);
-      proj->SetMarkerSize(0.9);
+      proj->SetMarkerSize(1.);
       mg.Add(proj, "p");
       if (proj->GetN() > 0)
         leg_data->AddEntry(proj, sample.name.data(), "ep");
@@ -185,6 +175,22 @@ void compare_sf(double q2 = 1.225,
     mg.GetHistogram()->GetYaxis()->SetRangeUser(1.e-4, TMath::Min(1.5, mg.GetHistogram()->GetMaximum()));
     //mg.GetHistogram()->GetYaxis()->SetRangeUser( 1.e-4, TMath::Min( 1.9, mg.GetHistogram()->GetMaximum() ) );
   }
+
+  if (auto* leg = c.GetLegend()) {
+    if (sfs.size() > 6) {
+      leg->SetNColumns(2);
+      leg->SetX1(0.18);
+      leg->SetX2(0.88);
+      leg->SetY1(0.62);
+      leg->SetY2(0.9);
+    } else if (sfs.size() > 9) {
+      leg->SetNColumns(3);
+      leg->SetX1(0.18);
+      leg->SetX2(0.88);
+      leg->SetY1(0.77);
+      leg->SetY2(0.92);
+    }
+  }
   if (leg_data->GetNRows() > 0) {
     leg_data->SetTextFont(132);
     leg_data->SetTextSize(0.035);
@@ -193,5 +199,6 @@ void compare_sf(double q2 = 1.225,
     leg_data->Draw();
   }
 
-  c.Save("pdf");
+  for (const auto& fmt : formats)
+    c.Save(fmt);
 }
