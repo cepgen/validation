@@ -89,6 +89,17 @@ public:
     }
     return hnd;
   }
+  static SampleHandler fromCCFR(const std::string& filename) {
+    SampleHandler hnd(filename, ' ');
+    for (const auto& dt : hnd.raw_values_) {
+      if (dt.size() != 8)
+        continue;
+      // x, q2, xf3, total, f2, total
+      // x, Q2, F2, err F2, Sigma, Sig Rat, No Smooth, R
+      hnd.addValue(dt.at(0), dt.at(1), dt.at(2), dt.at(3));
+    }
+    return hnd;
+  }
 
   SampleHandler& operator+(const SampleHandler& oth) {
     for (const auto& val : oth.values_)
@@ -173,7 +184,7 @@ public:
   }
 
 private:
-  explicit SampleHandler(const std::string& filename) : filename_(filename) {
+  explicit SampleHandler(const std::string& filename, char delim = ',') : filename_(filename) {
     std::ifstream cl(filename);
     if (!cl.is_open())
       throw std::runtime_error("Failed to open file '" + filename + "' for reading.");
@@ -183,8 +194,9 @@ private:
         continue;
       auto& raw_line = raw_values_.emplace_back();
       std::stringstream ss(line);
-      while (std::getline(ss, word, ','))
-        raw_line.emplace_back(std::stod(word));
+      while (std::getline(ss, word, delim))
+        if (!word.empty())
+          raw_line.emplace_back(std::stod(word));
     }
   }
   struct value_t {

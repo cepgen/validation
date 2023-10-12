@@ -9,8 +9,13 @@
 #include "CepGenAddOns/ROOTWrapper/ROOTCanvas.h"
 #include "SampleHandler.h"
 
-void compare_datasets(bool logx = true, bool logy = true, bool in_w = false, bool plot2d = false) {
-  cepgen::ROOTCanvas c("datasets_comparison");
+void compare_datasets(bool logx = true,
+                      bool logy = true,
+                      bool in_w = false,
+                      bool plot2d = false,
+                      const string& output = "datasets_comparison",
+                      const vector<string>& formats = {"pdf"}) {
+  cepgen::ROOTCanvas c(output);
   c.SetLegendX1(in_w ? 0.15 : 0.4);
   c.SetLegendY1(0.77);
   c.SetGrid(1, 1);
@@ -52,6 +57,7 @@ void compare_datasets(bool logx = true, bool logy = true, bool in_w = false, boo
       22,
       kBlue - 2);
   samples.emplace_back(SampleHandler::fromHermes("samples/hermes.csv"), "HERMES", 28, kMagenta + 2);
+  //samples.emplace_back(SampleHandler::fromCCFR("samples/ccfr.txt"), "CCFR", 29, kRed + 2);
 
   TMultiGraph mg;
   if (plot2d) {
@@ -70,7 +76,7 @@ void compare_datasets(bool logx = true, bool logy = true, bool in_w = false, boo
     }
     if (logx) {
       if (in_w)
-        plts[0]->GetHistogram()->GetXaxis()->SetLimits(1., 1.e3);
+        plts[0]->GetHistogram()->GetXaxis()->SetLimits(1.e-1, 300.);
       else
         plts[0]->GetHistogram()->GetXaxis()->SetLimits(1.e-7, 1.);
       c.SetLogx();
@@ -83,7 +89,7 @@ void compare_datasets(bool logx = true, bool logy = true, bool in_w = false, boo
     for (const auto& sample : samples) {
       auto* proj = new TGraph(in_w ? sample.handler.wQ2Span() : sample.handler.xbjQ2Span());
       proj->SetMarkerStyle(sample.style);
-      proj->SetMarkerSize(0.5);
+      proj->SetMarkerSize(0.8);
       proj->SetMarkerColor(sample.colour);
       mg.Add(proj);
       if (proj->GetN() > 0)
@@ -100,7 +106,7 @@ void compare_datasets(bool logx = true, bool logy = true, bool in_w = false, boo
     //mg.GetHistogram()->GetXaxis()->SetLimits(xbj_lims.min(), xbj_lims.max());
     if (logx) {
       if (in_w)
-        mg.GetHistogram()->GetXaxis()->SetLimits(1., 1.e3);
+        mg.GetHistogram()->GetXaxis()->SetLimits(9.e-1, 350.);
       else
         mg.GetHistogram()->GetXaxis()->SetLimits(1.e-7, 1.);
       c.SetLogx();
@@ -114,5 +120,6 @@ void compare_datasets(bool logx = true, bool logy = true, bool in_w = false, boo
       mg.GetHistogram()->GetYaxis()->SetRangeUser(1.e-6, TMath::Min(1.5, mg.GetHistogram()->GetMaximum()));
   }
 
-  c.Save("pdf");
+  for (const auto& fmt : formats)
+    c.Save(fmt);
 }
