@@ -20,12 +20,13 @@ void compare_sf(double q2 = 1.225,
                 bool right = false,
                 bool show_legend = true,
                 bool plot_fl = false) {
-  const cepgen::Limits xbj_lims(2.5e-6, 0.99);
+  //const cepgen::Limits xbj_lims(2.5e-6, 0.99);
+  const cepgen::Limits xbj_lims(1.1e-5, 0.99);
   //const cepgen::Limits xbj_lims(1.e-3, 0.99);
   //const cepgen::Limits xbj_lims(1.e-3, 0.9);
   const unsigned short num_points = 1000;
   const double x_pos_leg_data = (right) ? 0.56 : 0.16;
-  //const double x_pos_leg_data = ( right ) ? 0.5 : 0.16;
+  //const double x_pos_leg_data = (right) ? 0.5 : 0.16;
   const double y_pos_leg_data = 0.35;
   //const double y_pos_leg_data = 0.7;
   const string mstw_grid_path = cepgen::utils::env::get("HOME") + "/work/dev/cepgen/External/mstw_sf_scan_nnlo.dat";
@@ -99,9 +100,14 @@ void compare_sf(double q2 = 1.225,
       c.AddLegendEntry(&sf.graph(), cepgen::utils::split(sf.name(), ' ')[0].data(), "l");
   }
 
-  if (sfs.size() > 9) {
-    auto leg = c.GetLegend();
-    if (leg) {
+  if (auto* leg = c.GetLegend()) {
+    if (sfs.size() > 6) {
+      leg->SetNColumns(2);
+      leg->SetX1(0.18);
+      leg->SetX2(0.88);
+      leg->SetY1(0.62);
+      leg->SetY2(0.9);
+    } else if (sfs.size() > 9) {
       leg->SetNColumns(3);
       leg->SetX1(0.18);
       leg->SetX2(0.88);

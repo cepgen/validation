@@ -1,6 +1,6 @@
 if [ -z $CEPGEN_PATH ]; then
-  echo "Variable \$CEPGEN_PATH is unset."
-  return
+  echo "Variable \$CEPGEN_PATH is unset.";
+  exit 1;
 else
   echo "Variable \$CEPGEN_PATH is set to '$CEPGEN_PATH'."
 fi
@@ -8,6 +8,8 @@ fi
 cat << EOF > CepGenEnvironment.h
 #ifndef CepGenEnvironment_h
 #define CepGenEnvironment_h
+
+#define CEPGEN_PATH "$CEPGEN_PATH"
 
 // clang-format off
 R__ADD_INCLUDE_PATH($CEPGEN_PATH)

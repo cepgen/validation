@@ -5,7 +5,8 @@
 #include "CepGen/Core/Exception.h"
 #include "CepGen/FormFactors/Parameterisation.h"
 #include "CepGen/Generator.h"
-#include "CepGen/Modules/StructureFunctionsFactory.h"
+#include "CepGen/Modules/FormFactorsFactory.h"
+#include "CepGen/Physics/Beam.h"
 #include "CepGen/Physics/MCDFileParser.h"
 #include "CepGenAddOns/ROOTWrapper/ROOTCanvas.h"
 #include "TGraph.h"
@@ -17,10 +18,7 @@ void compare_ff(bool logx = false, bool logy = false, bool right = false, bool s
   const double lq2min = log10(q2_min), lq2max = log10(q2_max);
   const unsigned short num_points = 1000;
 
-  pdg::MCDFileParser::parse("/home/forthomme/work/dev/cepgen-private/External/mass_width_2020.mcd");
-  //cepgen::initialise();
-  //cepgen::loadLibrary( "/home/forthomme/work/dev/cepgen-private/build/libCepGenCore.so" );
-  //cepgen::dumpModules();
+  pdg::MCDFileParser::parse(std::string(CEPGEN_PATH) + "/External/mass_width_2021.mcd");
 
   cepgen::ROOTCanvas c("ff_comparison", "CepGen form factors");
   c.SetLegendX1(0.4);
@@ -36,12 +34,12 @@ void compare_ff(bool logx = false, bool logy = false, bool right = false, bool s
                                                {"Arrington", "Arrington et al."}};
   size_t j = 0;
   CG_INFO("") << v_p_ffnames;
-  CG_INFO("") << cepgen::formfac::FormFactorsFactory::get().modules();
+  CG_INFO("") << cepgen::FormFactorsFactory::get().modules();
   cout << "haha" << endl;
   for (const auto& p_ffnames : v_p_ffnames) {
-    const auto& ffmod = cepgen::formfac::FormFactorsFactory::get().build(p_ffnames.first);
+    const auto& ffmod = cepgen::FormFactorsFactory::get().build(p_ffnames.first);
     v_g_fe.emplace_back();
-    auto& gr_fe = *v_g_fe.rbegin();
+    auto& gr_fe = v_g_fe.back();
     gr_fe->SetLineColor(colours[j]);
     gr_fe->SetLineWidth(2);
     gr_fe->SetLineStyle(1);
@@ -58,7 +56,7 @@ void compare_ff(bool logx = false, bool logy = false, bool right = false, bool s
       double q2 = q2_min + (q2_max - q2_min) * i / (num_points - 1);
       if (logx)
         q2 = pow(10, lq2min + i * (lq2max - lq2min) / (num_points - 1));
-      auto fn = (*ffmod)(cepgen::mode::Beam::ProtonElastic, q2);
+      auto fn = (*ffmod)(q2);
       //cout << q2 << "|" << xbj << "|" << fn << endl;
       gr_fe->SetPoint(i, q2, fn.FE);
       gr_fm->SetPoint(i, q2, fn.FM);
