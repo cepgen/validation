@@ -37,19 +37,18 @@ void str_fun_2d(int type, bool log_q2 = true, bool log_xbj = true, const char* b
       idx++;
     }
   }
-
-  //auto f_w2 = new TF1( "f_w2", "log10((10**x)/(1.-(10**x))*([0]-[1]**2))", lxbj_min, lxbj_max );
-  /*auto f_w2 = new TF1("f_w2", "log10((10**y)/(1.-(10**y))*([0]-[1]**2))", lxbj_min, lxbj_max);
+  //auto lxbj_lim = xbj_lim.compute(std::log10);
+  /*auto f_w2 = new TF1("f_w2", "log10((10**x)/(1.-(10**x))*([0]-[1]**2))", lxbj_lim.min(), lxbj_lim.max());
   f_w2->SetParameter(1, ParticleProperties::mass(PDG::Proton));
   f_w2->SetLineColor(kGreen + 1);
-  f_w2->SetRange(lxbj_min, lxbj_max);*/
-  /*auto f_q2 = new TF1("f_q2", "[0]", lxbj_min, lxbj_max);
+  f_w2->SetRange(lxbj_lim.min(), lxbj_lim.max());*/
+  /*auto f_q2 = new TF1("f_q2", "[0]", lxbj_lim.min(), lxbj_lim.max());
   f_q2->SetParameter(0, log10(9.));
   //  f_q2->SetParameter( 0, 0.1 );
   f_q2->SetLineColor(kGray + 1);
-  f_q2->SetRange(lxbj_min, lxbj_max);
-  cout << f_q2->Eval(lxbj_min) << "|" << f_q2->Eval(lxbj_max) << endl;*/
-  //TF1 f_q2("f_q2", "log10(9.)", lxbj_min, lxbj_max);
+  f_q2->SetRange(lxbj_min, lxbj_lim.max());
+  cout << f_q2->Eval(lxbj_min) << "|" << f_q2->Eval(lxbj_lim.max()) << endl;*/
+  //TF1 f_q2("f_q2", "log10(9.)", lxbj_lim.min(), lxbj_lim.max());
   gStyle->SetPalette(kColorPrintableOnGrey);
   gStyle->SetPalette(kLightTemperature);
   TColor::InvertPalette();
@@ -88,16 +87,16 @@ void str_fun_2d(int type, bool log_q2 = true, bool log_xbj = true, const char* b
     gr_fl.Draw("surf3");
     //    gr_fl.Draw( "lego2 0" );
     gr_fl.GetHistogram()->SetTitle(Form(";%s;%s;F_{L}^{p}(x_{Bj},Q^{2})", xbj_axis.data(), q2_axis.data()));
-    //gr_fl.GetHistogram()->SetContour( 90 );
-    //gr_fl.SetMaximum( 1.2 );
+    //gr_fl.GetHistogram()->SetContour(90);
+    //gr_fl.SetMaximum(1.2);
     //c.SetLogx();
     //c.SetLogy();
     //c.SetLogz();
-    /*f_w2->SetParameter( 0, 3. );
-    f_w2->DrawCopy( "same" );
-    f_w2->SetParameter( 0, 4. );
-    f_w2->DrawCopy( "same" );
-    f_q2.DrawCopy( "same" );*/
+    /*f_w2->SetParameter(0, 3.);
+    f_w2->DrawCopy("same");
+    f_w2->SetParameter(0, 4.);
+    f_w2->DrawCopy("same");
+    f_q2.DrawCopy("same");*/
     c.Prettify(gr_fl.GetHistogram());
     gr_fl.GetXaxis()->SetTitleOffset(1.4);
     gr_fl.GetYaxis()->SetTitleOffset(1.8);

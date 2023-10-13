@@ -14,11 +14,10 @@
 #include "TSystem.h"
 
 void compare_ff(bool logx = false, bool logy = false, bool right = false, bool show_legend = true) {
-  const double q2_min = 1., q2_max = 1.e5;
-  const double lq2min = log10(q2_min), lq2max = log10(q2_max);
+  const cepgen::Limits q2_lims{1., 1.e5};
   const unsigned short num_points = 1000;
 
-  pdg::MCDFileParser::parse(std::string(CEPGEN_PATH) + "/External/mass_width_2021.mcd");
+  pdg::MCDFileParser::parse(std::string(CEPGEN_PATH) + "/External/mass_width_2023.txt");
 
   cepgen::ROOTCanvas c("ff_comparison", "CepGen form factors");
   c.SetLegendX1(0.4);
@@ -34,36 +33,29 @@ void compare_ff(bool logx = false, bool logy = false, bool right = false, bool s
                                                {"Arrington", "Arrington et al."}};
   size_t j = 0;
   CG_INFO("") << v_p_ffnames;
-  CG_INFO("") << cepgen::FormFactorsFactory::get().modules();
-  cout << "haha" << endl;
   for (const auto& p_ffnames : v_p_ffnames) {
     const auto& ffmod = cepgen::FormFactorsFactory::get().build(p_ffnames.first);
-    v_g_fe.emplace_back();
-    auto& gr_fe = v_g_fe.back();
+    auto gr_fe = new TGraph();
     gr_fe->SetLineColor(colours[j]);
     gr_fe->SetLineWidth(2);
     gr_fe->SetLineStyle(1);
     mg.Add(gr_fe);
-    v_g_fm.emplace_back();
-    auto& gr_fm = *v_g_fm.rbegin();
+    v_g_fe.emplace_back(gr_fe);
+    auto gr_fm = new TGraph();
     gr_fm->SetLineColor(colours[j]);
     gr_fm->SetLineWidth(2);
     gr_fm->SetLineStyle(2);
     mg.Add(gr_fm);
+    v_g_fm.emplace_back(gr_fm);
     if (show_legend)
       c.AddLegendEntry(gr_fe, p_ffnames.second.c_str(), "l");
-    for (unsigned int i = 0; i < num_points; ++i) {
-      double q2 = q2_min + (q2_max - q2_min) * i / (num_points - 1);
-      if (logx)
-        q2 = pow(10, lq2min + i * (lq2max - lq2min) / (num_points - 1));
+    for (const auto& q2 : q2_lims.generate(num_points, logx)) {
       auto fn = (*ffmod)(q2);
-      //cout << q2 << "|" << xbj << "|" << fn << endl;
-      gr_fe->SetPoint(i, q2, fn.FE);
-      gr_fm->SetPoint(i, q2, fn.FM);
+      gr_fe->SetPoint(gr_fe->GetN(), q2, fn.FE);
+      gr_fm->SetPoint(gr_fm->GetN(), q2, fn.FM);
     }
     ++j;
   }
-  cout << "haha" << endl;
 
   //--- general plotting
 
@@ -72,7 +64,7 @@ void compare_ff(bool logx = false, bool logy = false, bool right = false, bool s
   c.Prettify(mg.GetHistogram());
   mg.GetHistogram()->SetTitle("");
 
-  mg.GetHistogram()->GetXaxis()->SetLimits(q2_min, q2_max);
+  mg.GetHistogram()->GetXaxis()->SetLimits(q2_lims.min(), q2_lims.max());
   if (logx)
     c.SetLogx();
   if (logy) {
