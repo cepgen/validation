@@ -18,8 +18,9 @@ void compare_samples(const vector<pair<string, string> >& samples,
                      bool logx = false,
                      bool logy = false,
                      bool show_legend = true,
+                     bool ratio = false,
                      const string& output_file = "samples_comparison") {
-  cepgen::ROOTCanvas c(output_file, label);
+  cepgen::ROOTCanvas c(output_file, label, ratio);
   //c.SetLegendX1(0.4);
   //c.SetLegendY1(0.77);
   c.SetGrid(1, 1);
@@ -27,7 +28,7 @@ void compare_samples(const vector<pair<string, string> >& samples,
   const auto var_tok = cepgen::utils::split(var_in, ':');
 
   vector<TH1*> hists;
-  THStack hs;
+  auto* hs = c.Make<THStack>();
   size_t i = 0;
   for (const auto& smp : samples) {
     TChain chain("events");
@@ -47,22 +48,22 @@ void compare_samples(const vector<pair<string, string> >& samples,
       hist->SetMarkerColor(cepgen::ROOTCanvas::colours[i]);
       hist->SetLineWidth(3);
       hists.emplace_back(hist);
-      hs.Add(hist);
+      hs->Add(hist);
       if (show_legend)
         c.AddLegendEntry(hist, smp.second);
       ++i;
     }
   }
-  hs.Draw("nostack");
+  hs->Draw("nostack");
   if (var_tok.size() > 1) {
     string tok1 = var_tok.at(1), tok2 = "";
     if (var_tok.size() > 2) {  // unit specified
       tok1 += " (" + var_tok.at(2) + ")";
       tok2 = " (pb/" + var_tok.at(2) + ")";
     }
-    hs.GetHistogram()->SetTitle((";" + tok1 + ";d#sigma/d" + var_tok.at(1) + tok2).data());
+    hs->GetHistogram()->SetTitle((";" + tok1 + ";d#sigma/d" + var_tok.at(1) + tok2).data());
   }
-  c.Prettify(hs.GetHistogram());
+  c.Prettify(hs);
   if (logx)
     c.SetLogx();
   if (logy)

@@ -21,6 +21,7 @@ void compare_sf(double q2 = 1.225,
                 bool right = false,
                 bool show_legend = true,
                 bool plot_fl = false,
+                bool ratio_plot = false,
                 const string& output_file = "sf_comparison",
                 const vector<string>& formats = {"pdf"}) {
   //const cepgen::Limits xbj_lims(2.5e-6, 0.99);
@@ -36,7 +37,7 @@ void compare_sf(double q2 = 1.225,
   const string mstw_grid_path = cepgen::utils::env::get("HOME") + "/work/dev/cepgen/External/mstw_sf_scan_nnlo.dat";
 
   cepgen::initialise();
-  pdg::MCDFileParser::parse(cepgen::utils::env::get("HOME") + "/work/dev/cepgen/External/mass_width_2021.mcd");
+  pdg::MCDFileParser::parse(cepgen::utils::env::get("HOME") + "/work/dev/cepgen/External/mass_width_2023.txt");
 
   vector<StrFunParams> sfs;
   sfs.emplace_back(
@@ -83,13 +84,13 @@ void compare_sf(double q2 = 1.225,
         sf.graph().AddPoint(xbj, sf.sf()->F2(xbj, q2));
     }
 
-  cepgen::ROOTCanvas c(output_file);
+  cepgen::ROOTCanvas c(output_file, "", ratio_plot);
   c.SetTopLabel(Form("Q^{2} ~ %g GeV^{2}", q2));
   c.SetLegendX1(0.4);
   c.SetLegendY1(0.77);
   c.SetGrid(1, 1);
 
-  TMultiGraph mg;
+  auto* mg = c.Make<TMultiGraph>();
 
   //--- model curves
 
@@ -98,9 +99,9 @@ void compare_sf(double q2 = 1.225,
       auto gr_luxlike_line = (TGraph*)sf.graph().Clone();
       gr_luxlike_line->SetLineColorAlpha(kRed + 1, 0.5);
       gr_luxlike_line->SetLineWidth(8);
-      mg.Add(gr_luxlike_line);
+      mg->Add(gr_luxlike_line);
     }
-    mg.Add(&sf.graph());
+    mg->Add(&sf.graph());
     if (show_legend)
       c.AddLegendEntry(&sf.graph(), cepgen::utils::split(sf.name(), ' ')[0].data(), "l");
   }
@@ -149,31 +150,30 @@ void compare_sf(double q2 = 1.225,
       auto* proj = new TGraphErrors(sample.handler.xBjGraph(q2));
       proj->SetMarkerStyle(sample.style);
       proj->SetMarkerSize(1.);
-      mg.Add(proj, "p");
+      mg->Add(proj, "p");
       if (proj->GetN() > 0)
         leg_data->AddEntry(proj, sample.name.data(), "ep");
     }
 
   //--- general plotting
 
-  mg.Draw("al");
-  mg.GetHistogram()->SetTitle(Form("x_{Bj}\\%s", (plot_fl ? "F_{L}^{p}" : "F_{2}^{p}")));
-  c.Prettify(mg.GetHistogram());
-  mg.GetHistogram()->SetTitle("");
+  mg->Draw("al");
+  mg->GetHistogram()->SetTitle(Form("x_{Bj}\\%s", (plot_fl ? "F_{L}^{p}" : "F_{2}^{p}")));
+  c.Prettify(mg);
+  mg->GetHistogram()->SetTitle("");
 
-  mg.GetHistogram()->GetXaxis()->SetLimits(xbj_lims.min(), xbj_lims.max());
+  mg->GetHistogram()->GetXaxis()->SetLimits(xbj_lims.min(), xbj_lims.max());
   if (logx)
     c.SetLogx();
   if (logy) {
-    mg.GetHistogram()->SetMinimum(1.e-3);
-    mg.GetHistogram()->SetMaximum(TMath::Min(5., mg.GetHistogram()->GetMaximum()));
+    mg->GetHistogram()->SetMinimum(1.e-3);
+    mg->GetHistogram()->SetMaximum(TMath::Min(5., mg->GetHistogram()->GetMaximum()));
     c.SetLogy();
-  }
-  //else mg.GetHistogram()->GetYaxis()->SetRangeUser( 1.e-4, 1.5 );
-  else {
-    //mg.GetHistogram()->SetMinimum( 1.e-4 );
-    mg.GetHistogram()->GetYaxis()->SetRangeUser(1.e-4, TMath::Min(1.5, mg.GetHistogram()->GetMaximum()));
-    //mg.GetHistogram()->GetYaxis()->SetRangeUser( 1.e-4, TMath::Min( 1.9, mg.GetHistogram()->GetMaximum() ) );
+  } else {
+    //mg->GetHistogram()->GetYaxis()->SetRangeUser(1.e-4, 1.5);
+    //mg->GetHistogram()->SetMinimum(1.e-4);
+    mg->GetHistogram()->GetYaxis()->SetRangeUser(1.e-4, TMath::Min(1.5, mg->GetHistogram()->GetMaximum()));
+    //mg->GetHistogram()->GetYaxis()->SetRangeUser(1.e-4, TMath::Min(1.9, mg->GetHistogram()->GetMaximum()));
   }
 
   if (auto* leg = c.GetLegend()) {
