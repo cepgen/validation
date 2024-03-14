@@ -8,22 +8,21 @@
 
 #include "CepGen/Generator.h"
 #include "CepGen/Modules/StructureFunctionsFactory.h"
-#include "CepGen/Physics/MCDFileParser.h"
 #include "CepGen/StructureFunctions/Parameterisation.h"
 #include "CepGen/Utils/Environment.h"
 #include "CepGen/Utils/String.h"
 #include "CepGenAddOns/ROOTWrapper/ROOTCanvas.h"
 #include "DISsamples/DISsample.h"
 
-void compare_sf(double q2 = 1.225,
-                bool logx = false,
-                bool logy = false,
-                bool right = false,
-                bool show_legend = true,
-                bool plot_fl = false,
-                bool ratio_plot = false,
-                const string& output_file = "sf_comparison",
-                const vector<string>& formats = {"pdf"}) {
+void compare_sf_vs_xbj(double q2 = 1.225,
+                       bool logx = false,
+                       bool logy = false,
+                       bool right = false,
+                       bool show_legend = true,
+                       bool plot_fl = false,
+                       bool ratio_plot = false,
+                       const string& output_file = "sf_comparison",
+                       const vector<string>& formats = {"pdf"}) {
   //const cepgen::Limits xbj_lims(2.5e-6, 0.99);
   const cepgen::Limits xbj_lims(1.1e-5, 0.99);
   //const cepgen::Limits xbj_lims(1.e-3, 0.99);
@@ -34,19 +33,11 @@ void compare_sf(double q2 = 1.225,
   const double y_pos_leg_data = 0.35;
   const double x_leg_size = 0.15, y_leg_size = 0.15;
   //const double y_pos_leg_data = 0.7;
-  const string mstw_grid_path = cepgen::utils::env::get("HOME") + "/work/dev/cepgen/External/mstw_sf_scan_nnlo.dat";
 
   cepgen::initialise();
-  pdg::MCDFileParser::parse(cepgen::utils::env::get("HOME") + "/work/dev/cepgen/External/mass_width_2023.txt");
 
   vector<StrFunParams> sfs;
-  sfs.emplace_back(
-      301,
-      cepgen::ParametersList().set<cepgen::ParametersList>(
-          "perturbativeSF",
-          cepgen::ParametersList().setName<int>(205 /* MSTWgrid */).set<string>("gridPath", mstw_grid_path))
-      //.set<vector<double> >("W2limits", {3., 16.})
-  );
+  sfs.emplace_back(301);
   sfs.emplace_back(11);
   sfs.emplace_back(101);
   sfs.emplace_back(103);
@@ -62,10 +53,10 @@ void compare_sf(double q2 = 1.225,
   sfs.emplace_back(
       401, cepgen::ParametersList().set<string>("pdfSet", "cteq6l1").set<int>("mode", 1), "CTEQ6l1:valence", kBlue, 2);
   sfs.emplace_back(
-      401, cepgen::ParametersList().set<string>("pdfSet", "cteq6l1").set<int>("mode", 2), "CTEQ6l1:sea", kBlue, 3);*/
-  /*sfs.emplace_back(
-      401, cepgen::ParametersList().set<string>("pdfSet", "LUXqed17_plus_PDF4LHC15_nnlo_100"), "LUXqed17", kBlue - 2, 3);*/
-  /*sfs.emplace_back(205, cepgen::ParametersList().set<string>("gridPath", mstw_grid_path), "MSTW:grid-NNLO", kOrange);
+      401, cepgen::ParametersList().set<string>("pdfSet", "cteq6l1").set<int>("mode", 2), "CTEQ6l1:sea", kBlue, 3);
+  sfs.emplace_back(
+      401, cepgen::ParametersList().set<string>("pdfSet", "LUXqed17_plus_PDF4LHC15_nnlo_100"), "LUXqed17", kBlue - 2, 3);
+  sfs.emplace_back(205, cepgen::ParametersList(), "MSTW:grid-NNLO", kOrange);
   sfs.emplace_back(
       401, cepgen::ParametersList().set<string>("pdfSet", "MSTW2008lo90cl"), "MSTW:partonic-LO", kOrange, 2);
   sfs.emplace_back(
