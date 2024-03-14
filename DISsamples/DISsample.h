@@ -1,5 +1,5 @@
-#ifndef SampleHandler_h
-#define SampleHandler_h
+#ifndef DISsamples_DISsample_h
+#define DISsamples_DISsample_h
 
 #include <TGraph.h>
 #include <TGraph2DErrors.h>
@@ -14,10 +14,10 @@
 // clang-format on
 #include "CepGen/Physics/Utils.h"
 
-class SampleHandler {
+class DISsample {
 public:
-  static SampleHandler fromCLAS(const std::string& filename) {
-    SampleHandler hnd(filename);
+  static DISsample fromCLAS(const std::string& filename) {
+    DISsample hnd(filename);
     for (const auto& dt : hnd.raw_values_) {
       if (dt.size() < 5)
         continue;
@@ -26,8 +26,8 @@ public:
     }
     return hnd;
   }
-  static SampleHandler fromHermes(const std::string& filename) {
-    SampleHandler hnd(filename);
+  static DISsample fromHermes(const std::string& filename) {
+    DISsample hnd(filename);
     for (const auto& dt : hnd.raw_values_) {
       if (dt.size() != 8)
         continue;
@@ -38,8 +38,8 @@ public:
     }
     return hnd;
   }
-  static SampleHandler fromZEUS(const std::string& filename) {
-    SampleHandler hnd(filename);
+  static DISsample fromZEUS(const std::string& filename) {
+    DISsample hnd(filename);
     for (const auto& dt : hnd.raw_values_) {
       if (dt.size() != 6)
         continue;
@@ -48,8 +48,8 @@ public:
     }
     return hnd;
   }
-  static SampleHandler fromH1lowQ2(const std::string& filename) {
-    SampleHandler hnd(filename);
+  static DISsample fromH1lowQ2(const std::string& filename) {
+    DISsample hnd(filename);
     for (const auto& dt : hnd.raw_values_) {
       if (dt.size() != 6)
         continue;
@@ -59,8 +59,8 @@ public:
     }
     return hnd;
   }
-  static SampleHandler fromH11997(const std::string& filename) {
-    SampleHandler hnd(filename);
+  static DISsample fromH11997(const std::string& filename) {
+    DISsample hnd(filename);
     for (const auto& dt : hnd.raw_values_) {
       if (dt.size() < 4)
         continue;
@@ -69,8 +69,8 @@ public:
     }
     return hnd;
   }
-  static SampleHandler fromBCDMS(const std::string& filename) {
-    SampleHandler hnd(filename);
+  static DISsample fromBCDMS(const std::string& filename) {
+    DISsample hnd(filename);
     for (const auto& dt : hnd.raw_values_) {
       if (dt.size() != 4)
         continue;
@@ -79,8 +79,8 @@ public:
     }
     return hnd;
   }
-  static SampleHandler fromNMC(const std::string& filename) {
-    SampleHandler hnd(filename);
+  static DISsample fromNMC(const std::string& filename) {
+    DISsample hnd(filename);
     for (const auto& dt : hnd.raw_values_) {
       if (dt.size() != 5)
         continue;
@@ -89,8 +89,8 @@ public:
     }
     return hnd;
   }
-  static SampleHandler fromCCFR(const std::string& filename) {
-    SampleHandler hnd(filename, ' ');
+  static DISsample fromCCFR(const std::string& filename) {
+    DISsample hnd(filename, ' ');
     for (const auto& dt : hnd.raw_values_) {
       if (dt.size() != 8)
         continue;
@@ -101,7 +101,7 @@ public:
     return hnd;
   }
 
-  SampleHandler& operator+(const SampleHandler& oth) {
+  DISsample& operator+(const DISsample& oth) {
     for (const auto& val : oth.values_)
       addValue(std::get<0>(val.first), std::get<1>(val.first), val.second.value, val.second.uncertainty);
     return *this;
@@ -184,7 +184,7 @@ public:
   }
 
 private:
-  explicit SampleHandler(const std::string& filename, char delim = ',') : filename_(filename) {
+  explicit DISsample(const std::string& filename, char delim = ',') : filename_(filename) {
     std::ifstream cl(filename);
     if (!cl.is_open())
       throw std::runtime_error("Failed to open file '" + filename + "' for reading.");

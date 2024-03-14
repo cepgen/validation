@@ -8,10 +8,10 @@
 #include "CepGen/Utils/Environment.h"
 #include "CepGen/Utils/String.h"
 #include "CepGenAddOns/ROOTWrapper/ROOTCanvas.h"
-#include "SampleHandler.h"
+#include "DISsamples/DISsample.h"
 
-void chi2_dataset(const SampleHandler&, TGraphErrors&, cepgen::strfun::Parameterisation*);
-void chi2_binned_dataset(const SampleHandler&,
+void chi2_dataset(const DISsample&, TGraphErrors&, cepgen::strfun::Parameterisation*);
+void chi2_binned_dataset(const DISsample&,
                          const std::vector<cepgen::Limits>&,
                          TGraphErrors&,
                          cepgen::strfun::Parameterisation*);
@@ -21,40 +21,38 @@ void chi2_test(int sf = 301, bool binned = false, bool logx = true) {
   const int num_bins = 50;
 
   struct DataSample {
-    explicit DataSample(const SampleHandler& hnd, const std::string& aname, int astyle, int acolour = kBlack)
+    explicit DataSample(const DISsample& hnd, const std::string& aname, int astyle, int acolour = kBlack)
         : handler(hnd), name(aname), style(astyle), colour(acolour) {}
-    SampleHandler handler;
+    DISsample handler;
     std::string name;
     int style{0};
     int colour{0};
   };
   std::vector<DataSample> samples;
-  samples.emplace_back(SampleHandler::fromCLAS("samples/clas_0p225-4p725gev2.csv"), "CLAS", 24, kOrange);
-  samples.emplace_back(SampleHandler::fromBCDMS("samples/bcdms.csv"), "BCDMS", 30, kCyan + 2);
-  samples.emplace_back(SampleHandler::fromCLAS("samples/nmc_0p75-65gev2.csv")
-                           // + SampleHandler::fromCLAS("samples/nmc.csv")
-                           + SampleHandler::fromNMC("samples/nmc_0p8-62gev2.csv"),
+  samples.emplace_back(DISsample::fromCLAS("samples/clas_0p225-4p725gev2.csv"), "CLAS", 24, kOrange);
+  samples.emplace_back(DISsample::fromBCDMS("samples/bcdms.csv"), "BCDMS", 30, kCyan + 2);
+  samples.emplace_back(DISsample::fromCLAS("samples/nmc_0p75-65gev2.csv")
+                           // + DISsample::fromCLAS("samples/nmc.csv")
+                           + DISsample::fromNMC("samples/nmc_0p8-62gev2.csv"),
                        "NMC",
                        25);
-  samples.emplace_back(SampleHandler::fromCLAS("samples/e665.csv"), "E665", 27, kGreen + 2);
-  samples.emplace_back(SampleHandler::fromZEUS("samples/zeus.csv") +
-                           SampleHandler::fromCLAS("samples/zeus_0p11-0p65gev2.csv") +
-                           SampleHandler::fromCLAS("samples/zeus_1p5-15gev2.csv") +
-                           SampleHandler::fromZEUS("samples/zeus_0p6-17gev2.csv") +
-                           SampleHandler::fromCLAS("samples/zeus_8p5-5000gev2.csv"),
+  samples.emplace_back(DISsample::fromCLAS("samples/e665.csv"), "E665", 27, kGreen + 2);
+  samples.emplace_back(DISsample::fromZEUS("samples/zeus.csv") + DISsample::fromCLAS("samples/zeus_0p11-0p65gev2.csv") +
+                           DISsample::fromCLAS("samples/zeus_1p5-15gev2.csv") +
+                           DISsample::fromZEUS("samples/zeus_0p6-17gev2.csv") +
+                           DISsample::fromCLAS("samples/zeus_8p5-5000gev2.csv"),
                        "ZEUS",
                        26,
                        kRed + 1);
   samples.emplace_back(
-      SampleHandler::fromCLAS("samples/h1.csv") + SampleHandler::fromCLAS("samples/h1_neutral_2004.csv") +
-          SampleHandler::fromCLAS("samples/h1_4p5-1600gev2.csv") + SampleHandler::fromCLAS("samples/hera-h1-nc.csv") +
-          SampleHandler::fromH11997("samples/h1_1p5-150gev2.csv") +
-          SampleHandler::fromH1lowQ2("samples/h1_compton.csv") +
-          SampleHandler::fromH1lowQ2("samples/h1_0p35-3p5gev2.csv"),
+      DISsample::fromCLAS("samples/h1.csv") + DISsample::fromCLAS("samples/h1_neutral_2004.csv") +
+          DISsample::fromCLAS("samples/h1_4p5-1600gev2.csv") + DISsample::fromCLAS("samples/hera-h1-nc.csv") +
+          DISsample::fromH11997("samples/h1_1p5-150gev2.csv") + DISsample::fromH1lowQ2("samples/h1_compton.csv") +
+          DISsample::fromH1lowQ2("samples/h1_0p35-3p5gev2.csv"),
       "H1",
       22,
       kBlue - 2);
-  samples.emplace_back(SampleHandler::fromHermes("samples/hermes.csv"), "HERMES", 28, kMagenta + 2);
+  samples.emplace_back(DISsample::fromHermes("samples/hermes.csv"), "HERMES", 28, kMagenta + 2);
 
   pdg::MCDFileParser::parse(cepgen::utils::env::get("HOME") + "/work/dev/cepgen/External/mass_width_2021.mcd");
   const auto sfs = cepgen::StructureFunctionsFactory::get().build(sf);
@@ -100,7 +98,7 @@ void chi2_test(int sf = 301, bool binned = false, bool logx = true) {
   c.Save("pdf,png");
 }
 
-void chi2_dataset(const SampleHandler& smp, TGraphErrors& chi2_vs_q2, cepgen::strfun::Parameterisation* sfs) {
+void chi2_dataset(const DISsample& smp, TGraphErrors& chi2_vs_q2, cepgen::strfun::Parameterisation* sfs) {
   chi2_vs_q2.Clear();
   for (const auto& q2 : smp.q2Values()) {
     const auto gr = smp.xBjGraph(q2);
@@ -116,7 +114,7 @@ void chi2_dataset(const SampleHandler& smp, TGraphErrors& chi2_vs_q2, cepgen::st
   }
 }
 
-void chi2_binned_dataset(const SampleHandler& smp,
+void chi2_binned_dataset(const DISsample& smp,
                          const std::vector<cepgen::Limits>& bins,
                          TGraphErrors& chi2_vs_q2,
                          cepgen::strfun::Parameterisation* sfs) {

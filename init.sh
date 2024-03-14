@@ -1,6 +1,6 @@
 if [ -z $CEPGEN_PATH ]; then
   echo "Variable \$CEPGEN_PATH is unset.";
-  exit 1;
+  return;
 else
   echo "Variable \$CEPGEN_PATH is set to '$CEPGEN_PATH'."
 fi

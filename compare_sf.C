@@ -13,7 +13,7 @@
 #include "CepGen/Utils/Environment.h"
 #include "CepGen/Utils/String.h"
 #include "CepGenAddOns/ROOTWrapper/ROOTCanvas.h"
-#include "SampleHandler.h"
+#include "DISsamples/DISsample.h"
 
 void compare_sf(double q2 = 1.225,
                 bool logx = false,
@@ -113,37 +113,33 @@ void compare_sf(double q2 = 1.225,
       new TLegend(x_pos_leg_data, y_pos_leg_data, x_pos_leg_data + x_leg_size, y_pos_leg_data + y_leg_size, "");
 
   struct DataSample {
-    explicit DataSample(const SampleHandler& hnd, const std::string& aname, int astyle)
+    explicit DataSample(const DISsample& hnd, const std::string& aname, int astyle)
         : handler(hnd), name(aname), style(astyle) {}
-    SampleHandler handler;
+    DISsample handler;
     std::string name;
     int style{0};
   };
   std::vector<DataSample> samples;
-  samples.emplace_back(SampleHandler::fromCLAS("samples/clas_0p225-4p725gev2.csv"), "CLAS", 24);
-  samples.emplace_back(SampleHandler::fromBCDMS("samples/bcdms.csv"), "BCDMS", 30);
+  samples.emplace_back(DISsample::fromCLAS("samples/clas_0p225-4p725gev2.csv"), "CLAS", 24);
+  samples.emplace_back(DISsample::fromBCDMS("samples/bcdms.csv"), "BCDMS", 30);
   samples.emplace_back(
-      SampleHandler::fromCLAS("samples/nmc_0p75-65gev2.csv") + SampleHandler::fromNMC("samples/nmc_0p8-62gev2.csv"),
-      "NMC",
-      25);
-  samples.emplace_back(SampleHandler::fromCLAS("samples/e665.csv"), "E665", 27);
-  samples.emplace_back(SampleHandler::fromZEUS("samples/zeus.csv") +
-                           SampleHandler::fromCLAS("samples/zeus_0p11-0p65gev2.csv") +
-                           SampleHandler::fromCLAS("samples/zeus_1p5-15gev2.csv") +
-                           SampleHandler::fromZEUS("samples/zeus_0p6-17gev2.csv") +
-                           SampleHandler::fromCLAS("samples/zeus_8p5-5000gev2.csv"),
+      DISsample::fromCLAS("samples/nmc_0p75-65gev2.csv") + DISsample::fromNMC("samples/nmc_0p8-62gev2.csv"), "NMC", 25);
+  samples.emplace_back(DISsample::fromCLAS("samples/e665.csv"), "E665", 27);
+  samples.emplace_back(DISsample::fromZEUS("samples/zeus.csv") + DISsample::fromCLAS("samples/zeus_0p11-0p65gev2.csv") +
+                           DISsample::fromCLAS("samples/zeus_1p5-15gev2.csv") +
+                           DISsample::fromZEUS("samples/zeus_0p6-17gev2.csv") +
+                           DISsample::fromCLAS("samples/zeus_8p5-5000gev2.csv"),
                        "ZEUS",
                        26);
-  samples.emplace_back(SampleHandler::fromCLAS("samples/h1.csv") +
-                           SampleHandler::fromCLAS("samples/h1_4p5-1600gev2.csv") +
-                           //SampleHandler::fromCLAS("samples/h1_neutral_2004.csv") +
-                           //SampleHandler::fromCLAS("samples/hera-h1-nc.csv") +
-                           SampleHandler::fromH11997("samples/h1_1p5-150gev2.csv") +
-                           SampleHandler::fromH1lowQ2("samples/h1_compton.csv") +
-                           SampleHandler::fromH1lowQ2("samples/h1_0p35-3p5gev2.csv"),
+  samples.emplace_back(DISsample::fromCLAS("samples/h1.csv") + DISsample::fromCLAS("samples/h1_4p5-1600gev2.csv") +
+                           //DISsample::fromCLAS("samples/h1_neutral_2004.csv") +
+                           //DISsample::fromCLAS("samples/hera-h1-nc.csv") +
+                           DISsample::fromH11997("samples/h1_1p5-150gev2.csv") +
+                           DISsample::fromH1lowQ2("samples/h1_compton.csv") +
+                           DISsample::fromH1lowQ2("samples/h1_0p35-3p5gev2.csv"),
                        "H1",
                        22);
-  samples.emplace_back(SampleHandler::fromHermes("samples/hermes.csv"), "HERMES", 28);
+  samples.emplace_back(DISsample::fromHermes("samples/hermes.csv"), "HERMES", 28);
 
   if (!plot_fl)
     for (const auto& sample : samples) {
