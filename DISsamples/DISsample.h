@@ -9,9 +9,7 @@
 #include <sstream>
 #include <string>
 
-// clang-format off
-#include "CepGenEnvironment.h"
-// clang-format on
+#include "../CepGenEnvironment.h"
 #include "CepGen/Physics/Utils.h"
 
 class DISsample {
@@ -184,10 +182,10 @@ public:
   }
 
 private:
-  explicit DISsample(const std::string& filename, char delim = ',') : filename_(filename) {
-    std::ifstream cl(filename);
+  explicit DISsample(const std::string& filename, char delim = ',') : filename_("DISsamples/" + filename) {
+    std::ifstream cl(filename_);
     if (!cl.is_open())
-      throw std::runtime_error("Failed to open file '" + filename + "' for reading.");
+      throw std::runtime_error("Failed to open file '" + filename_ + "' for reading.");
     std::string line, word;
     while (std::getline(cl, line)) {
       if (line[0] == '#')

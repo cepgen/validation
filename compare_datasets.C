@@ -31,31 +31,29 @@ void compare_datasets(bool logx = true,
     int colour{0};
   };
   std::vector<DataSample> samples;
-  samples.emplace_back(DISsample::fromCLAS("samples/clas_0p225-4p725gev2.csv"), "CLAS", 24, kOrange);
-  samples.emplace_back(DISsample::fromBCDMS("samples/bcdms.csv"), "BCDMS", 30, kCyan + 2);
-  samples.emplace_back(  //DISsample::fromCLAS("samples/nmc_0p75-65gev2.csv")
-                         // + DISsample::fromCLAS("samples/nmc.csv")
-      DISsample::fromNMC("samples/nmc_0p8-62gev2.csv"),
+  samples.emplace_back(DISsample::fromCLAS("clas_0p225-4p725gev2.csv"), "CLAS", 24, kOrange);
+  samples.emplace_back(DISsample::fromBCDMS("bcdms.csv"), "BCDMS", 30, kCyan + 2);
+  samples.emplace_back(  //DISsample::fromCLAS("nmc_0p75-65gev2.csv")
+                         // + DISsample::fromCLAS("nmc.csv")
+      DISsample::fromNMC("nmc_0p8-62gev2.csv"),
       "NMC",
       25);
-  samples.emplace_back(DISsample::fromCLAS("samples/e665.csv"), "E665", 27, kGreen + 2);
-  samples.emplace_back(DISsample::fromZEUS("samples/zeus.csv") + DISsample::fromCLAS("samples/zeus_0p11-0p65gev2.csv") +
-                           DISsample::fromCLAS("samples/zeus_1p5-15gev2.csv") +
-                           DISsample::fromZEUS("samples/zeus_0p6-17gev2.csv") +
-                           DISsample::fromCLAS("samples/zeus_8p5-5000gev2.csv"),
+  samples.emplace_back(DISsample::fromCLAS("e665.csv"), "E665", 27, kGreen + 2);
+  samples.emplace_back(DISsample::fromZEUS("zeus.csv") + DISsample::fromCLAS("zeus_0p11-0p65gev2.csv") +
+                           DISsample::fromCLAS("zeus_1p5-15gev2.csv") + DISsample::fromZEUS("zeus_0p6-17gev2.csv") +
+                           DISsample::fromCLAS("zeus_8p5-5000gev2.csv"),
                        "ZEUS",
                        26,
                        kRed + 1);
-  samples.emplace_back(
-      DISsample::fromCLAS("samples/h1.csv") + DISsample::fromCLAS("samples/h1_neutral_2004.csv") +
-          DISsample::fromCLAS("samples/h1_4p5-1600gev2.csv") + DISsample::fromCLAS("samples/hera-h1-nc.csv") +
-          DISsample::fromH11997("samples/h1_1p5-150gev2.csv") + DISsample::fromH1lowQ2("samples/h1_compton.csv") +
-          DISsample::fromH1lowQ2("samples/h1_0p35-3p5gev2.csv"),
-      "H1",
-      22,
-      kBlue - 2);
-  samples.emplace_back(DISsample::fromHermes("samples/hermes.csv"), "HERMES", 28, kMagenta + 2);
-  //samples.emplace_back(DISsample::fromCCFR("samples/ccfr.txt"), "CCFR", 29, kRed + 2);
+  samples.emplace_back(DISsample::fromCLAS("h1.csv") + DISsample::fromCLAS("h1_neutral_2004.csv") +
+                           DISsample::fromCLAS("h1_4p5-1600gev2.csv") + DISsample::fromCLAS("hera-h1-nc.csv") +
+                           DISsample::fromH11997("h1_1p5-150gev2.csv") + DISsample::fromH1lowQ2("h1_compton.csv") +
+                           DISsample::fromH1lowQ2("h1_0p35-3p5gev2.csv"),
+                       "H1",
+                       22,
+                       kBlue - 2);
+  samples.emplace_back(DISsample::fromHermes("hermes.csv"), "HERMES", 28, kMagenta + 2);
+  //samples.emplace_back(DISsample::fromCCFR("ccfr.txt"), "CCFR", 29, kRed + 2);
 
   TMultiGraph mg;
   if (plot2d) {
